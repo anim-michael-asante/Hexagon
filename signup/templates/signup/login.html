@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Log in | ASP Technology{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{% static 'signup/css/signup.css' %}">{% endblock %}
+{% block content %}
+<main class="auth-shell auth-shell--login">
+  <section class="brand-panel" aria-labelledby="brand-title">
+    <div class="brand-panel__glow brand-panel__glow--one"></div><div class="brand-panel__glow brand-panel__glow--two"></div>
+    <a class="brand" href="{% url 'signup:signup' %}" aria-label="ASP Technology home">
+      <svg class="brand__mark" viewBox="0 0 48 48" aria-hidden="true"><rect x="7" y="8" width="34" height="32" rx="3"></rect><circle cx="15" cy="24" r="3"></circle><circle cx="33" cy="17" r="3"></circle><circle cx="33" cy="31" r="3"></circle><path d="M18 24h12M30 17l-7 7 7 7"></path></svg>
+      <span><strong>Artificial Synaptic Panels</strong><small>ASP TECHNOLOGY</small></span>
+    </a>
+    <div class="brand-panel__copy"><p class="eyebrow">WELCOME BACK</p><h1 id="brand-title">Keep every<br>lesson <em>in sync.</em></h1><p>Your shared learning environment is ready when you are.</p></div>
+  </section>
+  <section class="form-panel">
+    <div class="form-card">
+      <p class="form-kicker">SECURE ACCESS</p><h2>Log in to ASP</h2><p class="form-subtext">Continue to your synchronized learning space.</p>
+      {% if form.non_field_errors %}<div class="form-alert" role="alert">Username or password is incorrect.</div>{% endif %}
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="field{% if form.username.errors %} field--error{% endif %}"><label for="{{ form.username.id_for_label }}">Username</label>{{ form.username }}{% if form.username.errors %}<p class="field-error" role="alert">Enter a valid username and password.</p>{% endif %}</div>
+        <div class="field{% if form.password.errors %} field--error{% endif %}"><label for="{{ form.password.id_for_label }}">Password</label><div class="input-wrap">{{ form.password }}<button class="password-toggle" type="button" data-target="{{ form.password.id_for_label }}" aria-label="Show password">Show</button></div></div>
+        <div class="auth-links"><a href="{% url 'signup:forgot-password' %}">Forgot password?</a><a href="{% url 'signup:signup' %}">Create an account</a></div>
+        <button class="submit-button" type="submit"><span>Log in</span><span class="submit-button__spinner" aria-hidden="true"></span></button>
+      </form>
+    </div>
+  </section>
+</main>
+{% endblock %}
+{% block scripts %}<script src="{% static 'signup/js/signup.js' %}" defer></script>{% endblock %}

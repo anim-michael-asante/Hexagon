@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Welcome to ASP Technology{% endblock %}
+{% block styles %}<style>
+  .welcome { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: #101b2d; color: #f4f7fa; font-family: Inter, sans-serif; text-align: center; }
+  .welcome__card { max-width: 560px; padding: 48px; border: 1px solid rgba(33,200,213,.3); border-radius: 24px; background: rgba(244,247,250,.06); }
+  .welcome h1 { margin: 0 0 16px; font: 700 clamp(2rem, 5vw, 3.5rem) Sora, sans-serif; }
+  .welcome p { color: #c6d0dc; line-height: 1.6; } .welcome a { color: #21c8d5; }
+</style>{% endblock %}
+{% block content %}<main class="welcome"><section class="welcome__card"><p class="eyebrow">ASP TECHNOLOGY</p><h1>You're in sync.</h1><p>Welcome, {{ user.first_name|default:user.username }}. Your ASP learning space is ready.</p><form method="post" action="{% url 'signup:logout' %}">{% csrf_token %}<button class="submit-button" type="submit">Log out</button></form></section></main>{% endblock %}

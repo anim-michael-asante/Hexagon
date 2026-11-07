@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{{ legal_title }} | ASP Technology{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{% static 'signup/css/signup.css' %}">{% endblock %}
+{% block content %}
+<main class="legal-page">
+  <a class="brand legal-page__brand" href="{% url 'signup:signup' %}" aria-label="ASP Technology home">
+    <svg class="brand__mark" viewBox="0 0 48 48" aria-hidden="true"><rect x="7" y="8" width="34" height="32" rx="3"></rect><circle cx="15" cy="24" r="3"></circle><circle cx="33" cy="17" r="3"></circle><circle cx="33" cy="31" r="3"></circle><path d="M18 24h12M30 17l-7 7 7 7"></path></svg>
+    <span><strong>Artificial Synaptic Panels</strong><small>ASP TECHNOLOGY</small></span>
+  </a>
+  <section class="legal-card">
+    <p class="form-kicker">LEGAL INFORMATION</p>
+    <h1>{{ legal_title }}</h1>
+    <p>{{ legal_message }}</p>
+    <a class="legal-back" href="{% url 'signup:signup' %}">Return to ASP</a>
+  </section>
+</main>
+{% endblock %}
