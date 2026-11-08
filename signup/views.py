@@ -1,14 +1,17 @@
 from django.contrib.auth import login
+from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.views import LoginView, LogoutView
 from django.core.cache import cache
-from django.db import IntegrityError
-from django.http import Http404
+from django.db import IntegrityError, transaction
+from django.http import FileResponse, Http404, JsonResponse
+from pathlib import PurePath
 from django.shortcuts import redirect, render
 
-from .forms import ASPAuthenticationForm, ForgotPasswordForm, SignUpForm
+from .forms import ASPAuthenticationForm, ForgotPasswordForm, SettingsForm, SignUpForm
+from .models import UserProfile
 
 
 THROTTLE_WINDOW = 15 * 60
@@ -116,4 +119,81 @@ def legal_page(request, page):
 
 @login_required
 def welcome(request):
-    return render(request, 'signup/welcome.html')
+    profile = UserProfile.objects.filter(user=request.user).first()
+    return render(request, 'signup/welcome.html', {'user_profile': profile})
+
+
+@login_required
+def settings_page(request):
+    try:
+        profile = UserProfile.objects.get(user=request.user)
+    except UserProfile.DoesNotExist:
+        return redirect('signup:welcome')
+    form = SettingsForm(request.POST or None, request.FILES or None, instance=profile)
+    if request.method == 'POST' and form.is_valid():
+        username = form.cleaned_data['username']
+        if User.objects.filter(username__iexact=username).exclude(pk=request.user.pk).exists():
+            form.add_error(None, 'That username is already in use or invalid.')
+        else:
+            request.user.username = username
+            request.user.save(update_fields=['username'])
+            if form.cleaned_data.get('clear_user_image') and profile.user_image:
+                profile.user_image.delete(save=False)
+                profile.user_image = ''
+            else:
+                profile = form.save()
+            profile.save()
+            return render(request, 'signup/settings.html', {'form': form, 'saved': True, 'user_profile': profile})
+    return render(request, 'signup/settings.html', {'form': form, 'user_profile': profile})
+
+
+@login_required
+def profile_image(request):
+    profile = UserProfile.objects.filter(user=request.user).first()
+    if not profile or not profile.user_image:
+        raise Http404
+    content_types = {
+        '.gif': 'image/gif',
+        '.jpeg': 'image/jpeg',
+        '.jpg': 'image/jpeg',
+        '.png': 'image/png',
+        '.webp': 'image/webp',
+    }
+    content_type = content_types.get(PurePath(profile.user_image.name).suffix.lower(), 'application/octet-stream')
+    response = FileResponse(profile.user_image.open('rb'), content_type=content_type)
+    response['X-Content-Type-Options'] = 'nosniff'
+    response['Content-Disposition'] = 'inline'
+    return response
+
+
+@login_required
+@transaction.atomic
+def delete_account(request):
+    if request.method != 'POST' or request.POST.get('confirmation') != 'DELETE':
+        return redirect('signup:settings')
+    profile = UserProfile.objects.filter(user=request.user).first()
+    if profile and profile.user_image:
+        profile.user_image.delete(save=False)
+    user = request.user
+    logout(request)
+    user.delete()
+    return redirect('signup:signup')
+
+
+@login_required
+def export_account_data(request):
+    profile = UserProfile.objects.filter(user=request.user).first()
+    data = {
+        'username': request.user.username,
+        'phone_number': profile.phone_number if profile else '',
+        'settings': {
+            'mfa_enabled': profile.mfa_enabled if profile else False,
+        },
+    }
+    response = JsonResponse(data)
+    response['Content-Disposition'] = 'attachment; filename="hexagon-account-data.json"'
+    return response
+from django.contrib.auth import logout
+from django.db import transaction
+from django.http import FileResponse, Http404
+from pathlib import PurePath

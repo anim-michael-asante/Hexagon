@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Settings | Hexagon{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{% static 'signup/css/settings.css' %}">{% endblock %}
+{% block content %}
+<main class="settings-page">
+  <header class="settings-header">
+    <a class="settings-brand" href="{% url 'signup:welcome' %}" aria-label="Back to dashboard"><span class="settings-brand__mark"><img src="{% static 'signup/images/logo.png' %}" alt=""></span><span>Hexagon</span></a>
+    <a class="settings-back" href="{% url 'signup:welcome' %}">Back to dashboard</a>
+  </header>
+  <div class="settings-layout">
+    <nav class="settings-nav" aria-label="Settings sections">
+      <p class="settings-kicker">SETTINGS</p>
+      <button class="settings-nav__item is-active" type="button" data-settings-section="general">General</button>
+      <button class="settings-nav__item" type="button" data-settings-section="security">Security and login</button>
+    </nav>
+    <form class="settings-form" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {% if saved %}<p class="settings-feedback settings-feedback--success" role="status">Your settings were saved.</p>{% endif %}
+      {% if form.non_field_errors %}<p class="settings-feedback settings-feedback--error" role="alert">{{ form.non_field_errors|striptags }}</p>{% endif %}
+      <section class="settings-panel" data-settings-panel="security" aria-labelledby="security-title" hidden>
+        <p class="settings-kicker">SECURITY AND LOGIN</p><h1 id="security-title">Security and login</h1>
+        <p class="settings-panel__intro">Protect your account and classroom workspace.</p>
+        <label class="settings-toggle"><span><strong>Multi-Factor Authentication</strong><small>Add another layer of protection to your account.</small></span>{{ form.mfa_enabled }}<i></i></label>
+      </section>
+      <section class="settings-panel is-active" data-settings-panel="general" aria-labelledby="general-title">
+        <p class="settings-kicker">ACCOUNT</p><h1 id="general-title">General</h1>
+        <p class="settings-panel__intro">Manage the details connected to your account.</p>
+        <label class="settings-field">Username<input type="text" name="username" value="{{ user.username }}" maxlength="150" required autocomplete="username"></label>
+        <label class="settings-field">Phone number{{ form.phone_number }}</label>
+        <label class="settings-upload">User image
+          {% if user_profile and user_profile.user_image %}
+            <img class="settings-avatar" src="{% url 'signup:profile-image' %}" alt="Current user image">
+          {% else %}
+            <span class="settings-avatar">{{ user.first_name|default:user.username|slice:":1"|upper }}</span>
+          {% endif %}
+          <input type="file" name="user_image" accept=".jpg,.jpeg,.png,.gif,.webp,image/jpeg,image/png,image/gif,image/webp">
+          {% if user_profile and user_profile.user_image %}
+            <button class="settings-clear-image" type="submit" name="clear_user_image" value="on">Clear profile image</button>
+          {% endif %}
+          <small>Choose an image smaller than 2 MB.</small>
+        </label>
+      </section>
+      <section class="settings-panel settings-panel--danger" aria-labelledby="delete-title">
+        <p class="settings-kicker">ACCOUNT CONTROL</p><h2 id="delete-title">Delete account</h2>
+        <p class="settings-panel__intro">This permanently deletes your account, profile image, and account settings.</p>
+        <label class="settings-field">Type DELETE to confirm<input id="delete-confirmation" type="text" autocomplete="off"></label>
+        <button class="settings-danger" type="submit" form="delete-account-form">Delete my account</button>
+        <button class="settings-export" type="submit" formaction="{% url 'signup:export-data' %}" formmethod="get">Download my account data</button>
+      </section>
+      {% if form.errors %}<div class="settings-form-errors">{{ form.errors|striptags }}</div>{% endif %}
+      <button class="settings-save" type="submit">Save changes</button>
+    </form>
+  </div>
+  <form id="delete-account-form" method="post" action="{% url 'signup:delete-account' %}">
+    {% csrf_token %}
+    <input id="delete-confirmation-value" type="hidden" name="confirmation" value="">
+  </form>
+</main>
+{% endblock %}
+{% block scripts %}<script src="{% static 'signup/js/settings.js' %}"></script>{% endblock %}

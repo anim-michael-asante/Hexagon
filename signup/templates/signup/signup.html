@@ -1,30 +1,25 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}Create your ASP account{% endblock %}
+{% block title %}Create your Hexagon account{% endblock %}
 {% block styles %}<link rel="stylesheet" href="{% static 'signup/css/signup.css' %}">{% endblock %}
 {% block content %}
-<main class="auth-shell">
+<main class="auth-shell auth-shell--signup">
   <section class="brand-panel" aria-labelledby="brand-title">
     <div class="brand-panel__glow brand-panel__glow--one"></div>
     <div class="brand-panel__glow brand-panel__glow--two"></div>
-    <a class="brand" href="{% url 'signup:signup' %}" aria-label="ASP Technology home">
-      <svg class="brand__mark" viewBox="0 0 48 48" aria-hidden="true">
-        <rect x="7" y="8" width="34" height="32" rx="3"></rect>
-        <circle cx="15" cy="24" r="3"></circle><circle cx="33" cy="17" r="3"></circle><circle cx="33" cy="31" r="3"></circle>
-        <path d="M18 24h12M30 17l-7 7 7 7"></path>
-      </svg>
-      <span><strong>Artificial Synaptic Panels</strong><small>ASP TECHNOLOGY</small></span>
+    <a class="brand" href="{% url 'signup:signup' %}" aria-label="Hexagon home">
+      <span class="brand__mark-wrap"><span class="brand__mark-ring"></span><img class="brand__mark" src="{% static 'signup/images/logo.png' %}" alt="Hexagon logo"></span>
+      <span><strong>Hexagon</strong></span>
     </a>
     <div class="brand-panel__copy">
-      <p class="eyebrow">SYNCHRONIZED LEARNING SYSTEMS</p>
-      <h1 id="brand-title">Every seat.<br>The same screen.<br><em>In sync.</em></h1>
-      <p>Bringing the lecturer's screen closer to every student.</p>
+      <h1 id="brand-title">Every lesson.<br><em>One connected classroom.</em></h1>
+      <p>Keep every student on the same screen.</p>
     </div>
   </section>
   <section class="form-panel">
     <div class="form-card">
       <p class="form-kicker">CREATE YOUR ACCESS</p>
-      <h2>Sign up for ASP</h2>
+      <h2>Sign up for Hexagon</h2>
       <p class="form-subtext">Build a clearer connection between every learner and every lesson.</p>
       {% if form.non_field_errors %}
         <div class="form-alert" role="alert">{{ form.non_field_errors|striptags }}</div>
@@ -48,10 +43,6 @@
             </div>
           {% endif %}
         {% endfor %}
-        <label class="checkbox{% if form.terms.errors %} checkbox--error{% endif %}">
-          {{ form.terms }}<span>{{ form.terms.label }}</span>
-        </label>
-        {% if form.terms.errors %}<p class="field-error" role="alert">{{ form.terms.errors|striptags }}</p>{% endif %}
         <button class="submit-button" type="submit"><span>Create account</span><span class="submit-button__spinner" aria-hidden="true"></span></button>
       </form>
       <p class="switch-auth">Already have an account? <a href="{% url 'signup:login' %}">Log in</a></p>
